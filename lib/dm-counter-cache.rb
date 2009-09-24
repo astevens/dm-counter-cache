@@ -5,7 +5,7 @@ module DataMapper
   module CounterCacheable
 
     def self.included(klass)      
-      DataMapper::Associations::ManyToOne.module_eval {
+      DataMapper::Associations::ManyToOne.module_eval do
         extend DataMapper::CounterCacheable::ClassMethods
         
         (class << self; self; end).class_eval do
@@ -15,7 +15,7 @@ module DataMapper
           end
         end
 
-      }
+      end
     end
 
     module ClassMethods
@@ -62,31 +62,3 @@ module DataMapper
 
   end # CounterCacheable
 end # DataMapper
-
-if $0 == __FILE__
-  require 'rubygems'
-
-  gem 'dm-core', '~>0.9.8'
-  require 'dm-core'
-
-  FileUtils.touch(File.join(Dir.pwd, "migration_test.db"))
-  DataMapper.setup(:default, "sqlite3://#{Dir.pwd}/migration_test.db")
-
-  class Post
-    include DataMapper::Resource
-
-    property :id, Integer, :serial => true
-    has n, :comments
-  end
-  Post.auto_migrate!
-  
-  class Comment
-    include DataMapper::Resource
-    include DataMapper::CounterCacheable
-
-    belongs_to :post, :counter_cache => true
-  end
-  Comments.auto_migrate!
-
-  Post.create.comments.create
-end

@@ -1,5 +1,5 @@
 module DataMapper
   module CounterCacheable
-    VERSION = '0.9.8'
+    VERSION = '0.10.0'.freeze
   end
 end

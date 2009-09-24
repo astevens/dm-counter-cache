@@ -1,13 +1,14 @@
-require 'pathname'
 require 'rubygems'
 
-gem 'rspec', '~>1.1.11'
-require 'spec'
-
-gem 'dm-core', '~>0.9.8'
+# use local dm-core if running from a typical dev checkout.
+lib = File.join('..', '..', 'dm-core', 'lib')
+$LOAD_PATH.unshift(lib) if File.directory?(lib)
 require 'dm-core'
 
-require Pathname(__FILE__).dirname.parent.expand_path + 'lib/dm-counter-cache'
+# Support running specs with 'rake spec' and 'spec'
+$LOAD_PATH.unshift('lib') unless $LOAD_PATH.include?('lib')
+
+require 'dm-counter-cache'
 
 def load_driver(name, default_uri)
   return false if ENV['ADAPTER'] != name.to_s

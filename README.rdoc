@@ -1,4 +1,4 @@
-== README
+= dm-counter-cache
 
 DataMapper::CounterCacheable automates the dec/incrementing of association counter fields. This is
 similar to counter caches in ActiveRecord.
