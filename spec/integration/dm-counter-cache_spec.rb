@@ -5,7 +5,7 @@ describe DataMapper::CounterCacheable do
     class Post
       include DataMapper::Resource
 
-      property :id, Integer, :serial => true
+      property :id, Serial
       property :comments_count, Integer, :default => 0
       has n, :comments
     end
@@ -14,7 +14,7 @@ describe DataMapper::CounterCacheable do
       include DataMapper::Resource
       include DataMapper::CounterCacheable  
 
-      property :id, Integer, :serial => true
+      property :id, Serial
       belongs_to :post, :counter_cache => true
 
     end
@@ -22,20 +22,20 @@ describe DataMapper::CounterCacheable do
     class User
       include DataMapper::Resource
 
-      property :id, Integer, :serial => true
+      property :id, Serial
       property :groups_count, Integer, :default => 0      
 
       has n, :group_memberships
-      has n, :groups, :through => :group_memberships, :class_name => "Group", :remote_name => :group, :parent_key => [:id], :child_key => [:user_id]
+      has n, :groups, :through => :group_memberships, :via => :group
     end
     
     class Group
       include DataMapper::Resource
 
-      property :id, Integer, :serial => true
+      property :id, Serial
       property :members_count, Integer, :default => 0
       has n, :group_memberships
-      has n, :members, :through => :group_memberships, :class_name => "User", :remote_name => :user, :parent_key => [:id], :child_key => [:group_id]
+      has n, :members, "User", :through => :group_memberships, :via => :member
     end
 
     class GroupMembership
@@ -45,9 +45,9 @@ describe DataMapper::CounterCacheable do
       property :id, Serial
 
       belongs_to :group, :counter_cache => :members_count
-      belongs_to :member, :class_name => "User", :child_key => [:user_id], :counter_cache => :groups_count
+      belongs_to :member, :model => "User", :child_key => [:user_id], :counter_cache => :groups_count
     end    
-
+    
     GroupMembership.auto_migrate!
     User.auto_migrate!
     Group.auto_migrate!
@@ -75,7 +75,15 @@ describe DataMapper::CounterCacheable do
     comment2 = @post.comments.create
     comment2.destroy
     @post.reload.comments_count.should == 1
-    
+  end
+  
+  it "should increment groups_count and members_count" do
+    gm1 = @user.group_memberships.create(:group => @group)
+    @user.reload.groups_count.should == 1
+    @group.reload.members_count.should == 1    
+  end
+  
+  it "should increment/decrement groups_count and members_count" do
     gm1 = @user.group_memberships.create(:group => @group)
     gm2 = @user.group_memberships.create(:group => @group)
     gm2.destroy
