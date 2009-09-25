@@ -16,7 +16,6 @@ describe DataMapper::CounterCacheable do
 
       property :id, Serial
       belongs_to :post, :counter_cache => true
-
     end
     
     class User
@@ -47,15 +46,10 @@ describe DataMapper::CounterCacheable do
       belongs_to :group, :counter_cache => :members_count
       belongs_to :member, :model => "User", :child_key => [:user_id], :counter_cache => :groups_count
     end    
-    
-    GroupMembership.auto_migrate!
-    User.auto_migrate!
-    Group.auto_migrate!
-    Comment.auto_migrate!
-    Post.auto_migrate!
   end
 
   before(:each) do
+    DataMapper.auto_migrate!
     @post = Post.create
     @user = User.create
     @group = Group.create
@@ -90,5 +84,11 @@ describe DataMapper::CounterCacheable do
     @user.reload.groups_count.should == 1
     @group.reload.members_count.should == 1    
   end
-
+  
+  it "should allow normal belongs_to behavior" do
+    @post.comments.create
+    comment1 = Comment.first
+    comment1.post.should == @post
+  end
+  
 end

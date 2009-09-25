@@ -12,7 +12,7 @@ module DataMapper
     module ClassMethods
       # override to support counter caching
       def belongs_to(name, *args)
-        options = extract_options(args)
+        options = args.last.kind_of?(Hash) ? args.last : {}
         
         # wrap the belongs_to call
         counter_cache_attribute = options.delete(:counter_cache)
