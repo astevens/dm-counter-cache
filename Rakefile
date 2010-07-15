@@ -1,4 +1,6 @@
 require 'pathname'
+require 'rubygems'
+require 'hoe'
 
 ROOT    = Pathname(__FILE__).dirname.expand_path
 JRUBY   = RUBY_PLATFORM =~ /java/
