@@ -34,23 +34,25 @@ module DataMapper
       end
 
 
-      def setup_counter_cache_attribute(counter_cache_attribute, relationship)
+      def setup_counter_cache_attribute(attribute_name, relationship)
         relationship.source_model.class_eval <<-EOS, __FILE__, __LINE__
           unless method_defined?(:increment_counter_cache_for_#{relationship.name})
             after :create, :increment_counter_cache_for_#{relationship.name}
             after :destroy, :decrement_counter_cache_for_#{relationship.name}
     
             def increment_counter_cache_for_#{relationship.name}
-              return unless ::#{relationship.parent_model}.properties.named?(counter_cache_attribute(#{counter_cache_attribute.inspect}))
+              counter_cache_attribute = counter_cache_attribute(#{attribute_name.inspect})
+              return unless ::#{relationship.parent_model}.properties.named?(counter_cache_attribute)
               if self.#{relationship.name} && self.class == #{relationship.source_model.name}
-                self.#{relationship.name}.update(counter_cache_attribute(#{counter_cache_attribute.inspect}) => self.#{relationship.name}.reload.send(counter_cache_attribute(#{counter_cache_attribute.inspect})).succ)
+                self.#{relationship.name}.update(counter_cache_attribute => self.#{relationship.name}.reload.send(counter_cache_attribute).succ)
               end
             end
     
             def decrement_counter_cache_for_#{relationship.name}
-              return unless ::#{relationship.parent_model}.properties.named?(counter_cache_attribute(#{counter_cache_attribute.inspect}))
+              counter_cache_attribute = counter_cache_attribute(#{attribute_name.inspect})
+              return unless ::#{relationship.parent_model}.properties.named?(counter_cache_attribute)
               if self.#{relationship.name} && self.class == #{relationship.source_model.name}
-                self.#{relationship.name}.update(counter_cache_attribute(#{counter_cache_attribute.inspect}) => self.#{relationship.name}.reload.send(counter_cache_attribute(#{counter_cache_attribute.inspect})) - 1)
+                self.#{relationship.name}.update(counter_cache_attribute => self.#{relationship.name}.reload.send(counter_cache_attribute) - 1)
               end
             end
           end
