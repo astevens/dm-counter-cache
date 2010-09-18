@@ -15,6 +15,7 @@ describe DataMapper::CounterCacheable do
       include DataMapper::CounterCacheable  
 
       property :id, Serial
+      property :text, String
       belongs_to :post, :counter_cache => true
     end
     
@@ -84,7 +85,24 @@ describe DataMapper::CounterCacheable do
     @user.reload.groups_count.should == 1
     @group.reload.members_count.should == 1    
   end
-  
+
+  it "should track updates" do
+    comment = @post.comments.create
+    other_post = Post.create
+    comment.post = other_post
+    comment.save
+    @post.comments_count.should == 0
+    other_post.comments_count.should == 1
+  end
+
+  it "should not break updates" do
+    comment = @post.comments.create
+    @post.comments_count.should == 1
+    comment.text = "I dunnoae, lol!!!"
+    comment.save
+    @post.comments_count.should == 1
+  end
+
   it "should allow normal belongs_to behavior" do
     @post.comments.create
     comment1 = Comment.first

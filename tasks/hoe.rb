@@ -1,3 +1,4 @@
+Hoe.plugin :gemspec
 hoe = Hoe.new(GEM_NAME, GEM_VERSION) do |p|
 
   p.author = AUTHOR
