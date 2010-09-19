@@ -45,7 +45,7 @@ describe DataMapper::CounterCacheable do
       property :id, Serial
 
       belongs_to :group, :counter_cache => :members_count
-      belongs_to :member, :model => "User", :child_key => [:user_id], :counter_cache => :groups_count
+      belongs_to :member, "User", :child_key => [:user_id], :counter_cache => :groups_count
     end    
   end
 
