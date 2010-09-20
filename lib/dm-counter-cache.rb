@@ -55,19 +55,22 @@ module DataMapper
             after  :destroy, "decrement_counter_cache_for_#{relationship.name}"
 
             define_method "update_counter_cache_for_#{relationship.name}" do
-              if self.send(relationship.name) && original_parent = self.original_attributes.detect {|key, _| key.name == :"#{relationship.name}" }
-                self.send(relationship.name).increment_counter_cache(counter_cache_attribute(attribute_name))
-                original_parent[1].decrement_counter_cache(counter_cache_attribute(attribute_name))
-              end
+              new_parent = self.send(relationship.name)
+              original_parent_attribute = self.original_attributes.detect {|key, _| key.name == :"#{relationship.name}" }
+              original_parent = original_parent_attribute ? original_parent_attribute[1] : nil
+              new_parent.increment_counter_cache(counter_cache_attribute(attribute_name)) if new_parent && original_parent_attribute
+              original_parent.decrement_counter_cache(counter_cache_attribute(attribute_name)) if original_parent
             end
 
 
             define_method "increment_counter_cache_for_#{relationship.name}" do
-              self.send(relationship.name).increment_counter_cache(counter_cache_attribute(attribute_name))
+              parent = self.send(relationship.name)
+              parent.increment_counter_cache(counter_cache_attribute(attribute_name)) if parent
             end
 
             define_method "decrement_counter_cache_for_#{relationship.name}" do
-              self.send(relationship.name).decrement_counter_cache(counter_cache_attribute(attribute_name))
+              parent = self.send(relationship.name)
+              parent.decrement_counter_cache(counter_cache_attribute(attribute_name)) if parent
             end
           end
 

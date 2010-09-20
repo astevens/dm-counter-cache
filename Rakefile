@@ -13,7 +13,7 @@ AUTHOR = 'Saimon Moore'
 EMAIL  = 'saimonmoore [a] gmail [d] com'
 GEM_NAME = 'dm-counter-cache'
 GEM_VERSION = DataMapper::CounterCacheable::VERSION
-GEM_DEPENDENCIES = [['dm-core', "~>#{GEM_VERSION}"]]
+GEM_DEPENDENCIES = [['dm-core', "~> 1.0.0"]]
 GEM_CLEAN = %w[ log pkg coverage ]
 GEM_EXTRAS = { :has_rdoc => true, :extra_rdoc_files => %w[ README.rdoc LICENSE TODO History.rdoc ] }
 

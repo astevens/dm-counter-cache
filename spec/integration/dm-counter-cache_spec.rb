@@ -9,26 +9,26 @@ describe DataMapper::CounterCacheable do
       property :comments_count, Integer, :default => 0
       has n, :comments
     end
-    
+
     class Comment
       include DataMapper::Resource
-      include DataMapper::CounterCacheable  
+      include DataMapper::CounterCacheable
 
       property :id, Serial
       property :text, String
       belongs_to :post, :counter_cache => true
     end
-    
+
     class User
       include DataMapper::Resource
 
       property :id, Serial
-      property :groups_count, Integer, :default => 0      
+      property :groups_count, Integer, :default => 0
 
       has n, :group_memberships
       has n, :groups, :through => :group_memberships, :via => :group
     end
-    
+
     class Group
       include DataMapper::Resource
 
@@ -46,7 +46,7 @@ describe DataMapper::CounterCacheable do
 
       belongs_to :group, :counter_cache => :members_count
       belongs_to :member, "User", :child_key => [:user_id], :counter_cache => :groups_count
-    end    
+    end
   end
 
   before(:each) do
@@ -59,31 +59,44 @@ describe DataMapper::CounterCacheable do
   it "should increment comments_count" do
     @post.comments.create
     @post.reload.comments_count.should == 1
-    
+
     @user.group_memberships.create(:group => @group)
     @user.reload.groups_count.should == 1
     @group.reload.members_count.should == 1
   end
 
+  it "should not fail when parent is set to nil upon creation" do
+    lambda { Comment.create }.should_not raise_error
+  end
+
+  it "should not fail when parent is set to nil upon destroying" do
+    lambda { Comment.create.destroy }.should_not raise_error
+  end
+
+  it "should not fail when parent is set to nil upon modification" do
+    @post.comments.create.update(:post => nil)
+    @post.comments_count.should == 0
+  end
+
   it "should decrement comments_count" do
-    comment1 = @post.comments.create    
+    comment1 = @post.comments.create
     comment2 = @post.comments.create
     comment2.destroy
     @post.reload.comments_count.should == 1
   end
-  
+
   it "should increment groups_count and members_count" do
     gm1 = @user.group_memberships.create(:group => @group)
     @user.reload.groups_count.should == 1
-    @group.reload.members_count.should == 1    
+    @group.reload.members_count.should == 1
   end
-  
+
   it "should increment/decrement groups_count and members_count" do
     gm1 = @user.group_memberships.create(:group => @group)
     gm2 = @user.group_memberships.create(:group => @group)
     gm2.destroy
     @user.reload.groups_count.should == 1
-    @group.reload.members_count.should == 1    
+    @group.reload.members_count.should == 1
   end
 
   it "should track updates" do
@@ -108,5 +121,5 @@ describe DataMapper::CounterCacheable do
     comment1 = Comment.first
     comment1.post.should == @post
   end
-  
+
 end

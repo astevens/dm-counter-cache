@@ -1,5 +1,12 @@
+=== 1.0.1 - 1.0.3 / 2010-09-21
+
+* Should work for updates now
+* Fixed different issues
+
 === 1.0.0 / 2010-07-15
+
 * Just bumped the version dependencies
+
 
 === 0.10.0 / 2009-10-24
 
